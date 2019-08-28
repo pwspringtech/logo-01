@@ -1,5 +1,5 @@
-This is a baseline Three.js scene in React
+Three.js scene in React
+
+animated logo test
 
 npm start
-
-localhost 3001

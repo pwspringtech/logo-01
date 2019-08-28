@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
-let renderer, camera, controls, scene, cubeOne, cubeTwo, cubeThree;
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+let logo;
 
 class App extends Component {
   componentDidMount() {
@@ -13,26 +13,30 @@ class App extends Component {
   }
 
   sceneSetup = () => {
-    scene = new THREE.Scene();
-    // scene.background = new THREE.Color(0xffffff); // white background
-    scene.background = new THREE.Color(0x000000); // black background
+    this.scene = new THREE.Scene();
+    // this.scene.background = new THREE.Color(0xffffff); // white background
+    this.scene.background = new THREE.Color(0x000000); // black background
 
-    camera = new THREE.PerspectiveCamera(
+    this.camera = new THREE.PerspectiveCamera(
       35,
       window.innerWidth / window.innerHeight,
       0.1,
       100
     );
-    camera.position.z = 7;
+    this.camera.position.z = 9;
 
-    controls = new OrbitControls(camera, this.el);
-    controls.enableZoom = true;
+    this.controls = new OrbitControls(this.camera, this.el);
+    this.controls.enableZoom = true;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      gammaOutput: true,
+      gammaFactor: 2.2
+    });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
 
-    this.mount.appendChild(renderer.domElement);
+    this.mount.appendChild(this.renderer.domElement);
     window.addEventListener("resize", this.handleWindowResize);
   };
 
@@ -46,107 +50,91 @@ class App extends Component {
     // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     // scene.add(ambientLight);
 
-    const sphere = new THREE.SphereBufferGeometry(0.5, 16, 8);
-
     //Green
     const pointLight = new THREE.PointLight(0x1bc236, 1);
     pointLight.position.x = 800;
     pointLight.position.z = 300;
-    //Visual Marker for point light
-    // pointLight.add(
-    //   new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0x1bc236 }))
-    // );
-    scene.add(pointLight);
+    this.scene.add(pointLight);
 
     //Red
     const pointLight2 = new THREE.PointLight(0xfb3f3f, 1);
     pointLight2.position.x = -8;
     pointLight2.position.z = 3;
-    //Visual Marker for point light
-    // pointLight2.add(
-    //   new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0xfb3f3f }))
-    // );
-    scene.add(pointLight2);
+    this.scene.add(pointLight2);
 
     //Blue
     const pointLight3 = new THREE.PointLight(0x0000ff, 1);
-    //Visual Marker for point light
-    // pointLight3.add(
-    //   new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0x0000ff }))
-    // );
     pointLight3.position.y = 8;
     pointLight3.position.z = 3;
-    scene.add(pointLight3);
+    this.scene.add(pointLight3);
 
     //Cyan
     const pointLight4 = new THREE.PointLight(0x00f6ff, 1);
-    //Visual Marker for point light
-    // pointLight4.add(
-    //   new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ color: 0x00f6ff }))
-    // );
     pointLight4.position.y = -8;
     pointLight4.position.z = 3;
-    scene.add(pointLight4);
+    this.scene.add(pointLight4);
   };
 
   addObjects = () => {
-    const geometryOne = new THREE.BoxBufferGeometry(1, 1, 1);
-    const materialOne = new THREE.MeshStandardMaterial({
-      color: 0xababab,
-      metalness: 0.5,
-      roughness: 0.8
-    });
-    // const materialTwo = new THREE.MeshPhongMaterial({ shininess: 0.0 });
-    const materialTwo = new THREE.MeshStandardMaterial({
-      // color: 0x777777,
-      color: 0xffffff,
-      metalness: 0.97,
-      roughness: 0.3
-    });
+    // const materialOne = new THREE.MeshStandardMaterial({
+    //   color: 0xababab,
+    //   metalness: 0.5,
+    //   roughness: 0.8
+    // });
 
-    const textureLoader = new THREE.TextureLoader();
+    // const materialTwo = new THREE.MeshStandardMaterial({
+    //   color: 0xffffff,
+    //   metalness: 0.97,
+    //   roughness: 0.3
+    // });
 
-    const materialThree = new THREE.MeshBasicMaterial({
-      color: 0xffffff
-    });
-    cubeThree = new THREE.Mesh(geometryOne, materialThree);
-    cubeThree.position.x = -1.5;
-    cubeThree.material.map = textureLoader.load(
-      "http://localhost:3001/marble512px.jpg"
+    // GLTF Loader
+
+    const gltfLoader = new GLTFLoader();
+
+    const onLoad = gltf => {
+      console.log(gltf);
+      logo = gltf.scene.children[0];
+      this.scene.add(logo);
+    };
+
+    const onProgress = () => {};
+
+    const onError = errorMessage => {
+      console.log(errorMessage);
+    };
+
+    gltfLoader.load(
+      "/quads-trips.glb",
+      gltf => {
+        onLoad(gltf);
+      },
+      onProgress,
+      onError
     );
-
-    cubeOne = new THREE.Mesh(geometryOne, materialOne);
-    cubeTwo = new THREE.Mesh(geometryOne, materialTwo);
-    cubeTwo.position.x = 1.5;
-
-    scene.add(cubeOne);
-    scene.add(cubeTwo);
-    scene.add(cubeThree);
   };
 
   animate = () => {
     requestAnimationFrame(this.animate);
-    cubeOne.rotation.x += 0.01;
-    cubeOne.rotation.y += 0.01;
-    cubeTwo.rotation.x += 0.01;
-    cubeTwo.rotation.y += 0.01;
-    cubeThree.rotation.x += 0.01;
-    cubeThree.rotation.y += 0.01;
+    if (logo) {
+      // logo.rotation.x += 0.01;
+      logo.rotation.y += 0.005;
+    }
 
-    // console.log(renderer.info.render.calls); //add right above the render call
-    renderer.render(scene, camera);
+    //   // console.log(renderer.info.render.calls); //add right above the render call
+    this.renderer.render(this.scene, this.camera);
   };
 
   handleWindowResize = () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
   };
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleWindowResize);
     window.cancelAnimationFrame(this.requestID);
-    controls.dispose();
+    this.controls.dispose();
   }
 
   render() {
