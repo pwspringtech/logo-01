@@ -18,6 +18,9 @@ class App extends Component {
     // this.scene.background = new THREE.Color(0xffffff); // white background
     this.scene.background = new THREE.Color(0x000000); // black background
 
+    this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
+
+
     this.camera = new THREE.PerspectiveCamera(
       35,
       window.innerWidth / window.innerHeight,
@@ -90,17 +93,27 @@ class App extends Component {
   };
 
   addObjects = () => {
-    // const materialOne = new THREE.MeshStandardMaterial({
-    //   color: 0xababab,
-    //   metalness: 0.5,
-    //   roughness: 0.8
-    // });
 
-    // const materialTwo = new THREE.MeshStandardMaterial({
-    //   color: 0xffffff,
-    //   metalness: 0.97,
-    //   roughness: 0.3
-    // });
+    // ** Add Stars **
+    
+const starsGeometry = new THREE.Geometry();
+
+for ( let i = 0; i < 100000; i ++ ) {
+
+	let star = new THREE.Vector3();
+	star.x = THREE.Math.randFloatSpread( 500 );
+	star.y = THREE.Math.randFloatSpread( 500 );
+	star.z = THREE.Math.randFloatSpread( 500 );
+
+	starsGeometry.vertices.push( star );
+
+}
+
+const starsMaterial = new THREE.PointsMaterial( {size: 0.1} );
+
+const starField = new THREE.Points( starsGeometry, starsMaterial );
+
+this.scene.add( starField );
 
     // GLTF Loader
 
