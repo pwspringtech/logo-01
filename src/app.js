@@ -18,6 +18,7 @@ class App extends Component {
     // this.scene.background = new THREE.Color(0xffffff); // white background
     this.scene.background = new THREE.Color(0x000000); // black background
 
+    // ** Fog - exponentially denser further away from camera
     this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
 
 
@@ -45,6 +46,7 @@ class App extends Component {
   };
 
   lighting = () => {
+
     // Directional Light
     // const light = new THREE.DirectionalLight(0xffffff, 3.0);
     // light.position.set(5, 5, 5);
@@ -54,9 +56,10 @@ class App extends Component {
     // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     // this.scene.add(ambientLight);
 
+
     // *** add softbox ***
     RectAreaLightUniformsLib.init();
-		this.rectLight1 = new THREE.RectAreaLight( 0xffffff, 3, 10, 10 );
+		this.rectLight1 = new THREE.RectAreaLight( 0x0030ff, 3, 10, 10 );
 		this.rectLight1.position.set( 0, 7, -10 );
     this.rectLight1.lookAt( 0, 0, 0 );
 
@@ -94,26 +97,21 @@ class App extends Component {
 
   addObjects = () => {
 
-    // ** Add Stars **
     
-const starsGeometry = new THREE.Geometry();
 
-for ( let i = 0; i < 100000; i ++ ) {
+    // ** Add Stars **
 
-	let star = new THREE.Vector3();
-	star.x = THREE.Math.randFloatSpread( 500 );
-	star.y = THREE.Math.randFloatSpread( 500 );
-	star.z = THREE.Math.randFloatSpread( 500 );
-
-	starsGeometry.vertices.push( star );
-
-}
-
-const starsMaterial = new THREE.PointsMaterial( {size: 0.1} );
-
-const starField = new THREE.Points( starsGeometry, starsMaterial );
-
-this.scene.add( starField );
+  const starsGeometry = new THREE.Geometry();
+  for ( let i = 0; i < 100000; i ++ ) {
+	  let star = new THREE.Vector3();
+	  star.x = THREE.Math.randFloatSpread( 500 );
+	  star.y = THREE.Math.randFloatSpread( 500 );
+	  star.z = THREE.Math.randFloatSpread( 500 );
+	  starsGeometry.vertices.push( star );
+  }
+  const starsMaterial = new THREE.PointsMaterial( {size: 0.1} );
+  const starField = new THREE.Points( starsGeometry, starsMaterial );
+  this.scene.add( starField );
 
     // GLTF Loader
 
@@ -123,11 +121,22 @@ this.scene.add( starField );
     const onLoad = gltf => {
       console.log(gltf);
       this.frame = gltf.scene.children[0];
+      this.frame.traverse ( ( o ) => {
+          if ( o.isMesh ) {
+              o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.3});
+          }
+      });
       this.scene.add(this.frame);
     };
+
     const onLoad2 = gltf => {
       console.log(gltf);
       this.type = gltf.scene.children[0];
+      this.type.traverse ( ( o ) => {
+        if ( o.isMesh ) {
+            o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.3});
+        }
+          });
       this.scene.add(this.type);
     };
 
