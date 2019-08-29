@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 
-let frame, type;
 
 class App extends Component {
   componentDidMount() {
@@ -24,7 +24,7 @@ class App extends Component {
       0.1,
       100
     );
-    this.camera.position.z = 9;
+    this.camera.position.z = 7;
 
     this.controls = new OrbitControls(this.camera, this.el);
     this.controls.enableZoom = true;
@@ -45,16 +45,29 @@ class App extends Component {
     // Directional Light
     // const light = new THREE.DirectionalLight(0xffffff, 3.0);
     // light.position.set(5, 5, 5);
-    // scene.add(light);
+    // this.scene.add(light);
 
     // Ambient Light
     // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    // scene.add(ambientLight);
+    // this.scene.add(ambientLight);
+
+    // *** add softbox ***
+    RectAreaLightUniformsLib.init();
+		this.rectLight1 = new THREE.RectAreaLight( 0xffffff, 3, 10, 10 );
+		this.rectLight1.position.set( 0, 7, -10 );
+    this.rectLight1.lookAt( 0, 0, 0 );
+
+    // ***  turn on helper to make light visible ***
+    // const helper = new THREE.RectAreaLightHelper( this.rectLight1 );
+    // this.rectLight1.add( helper ); 
+
+		this.scene.add( this.rectLight1 );
+
 
     //Green
     const pointLight = new THREE.PointLight(0x1bc236, 1);
-    pointLight.position.x = 800;
-    pointLight.position.z = 300;
+    pointLight.position.x = 8;
+    pointLight.position.z = 3;
     this.scene.add(pointLight);
 
     //Red
@@ -96,13 +109,13 @@ class App extends Component {
 
     const onLoad = gltf => {
       console.log(gltf);
-      frame = gltf.scene.children[0];
-      this.scene.add(frame);
+      this.frame = gltf.scene.children[0];
+      this.scene.add(this.frame);
     };
     const onLoad2 = gltf => {
       console.log(gltf);
-      type = gltf.scene.children[0];
-      this.scene.add(type);
+      this.type = gltf.scene.children[0];
+      this.scene.add(this.type);
     };
 
     const onProgress = () => {};
@@ -131,17 +144,14 @@ class App extends Component {
 
   animate = () => {
     requestAnimationFrame(this.animate);
-    if (frame) {
+    if (this.frame && this.type) {
       // frame.rotation.x += 0.01;
-      frame.rotation.y += 0.005;
+      this.frame.rotation.y += 0.005;
+      this.type.rotation.y += 0.005;
     }
 
-    if (type) {
-      // type.rotation.x += 0.01;
-      type.rotation.y += 0.005;
-    }
 
-    //   // console.log(renderer.info.render.calls); //add right above the render call
+     // console.log(renderer.info.render.calls); 
     this.renderer.render(this.scene, this.camera);
   };
 
