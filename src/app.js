@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-let logo;
+
+let frame, type;
 
 class App extends Component {
   componentDidMount() {
@@ -91,11 +92,17 @@ class App extends Component {
     // GLTF Loader
 
     const gltfLoader = new GLTFLoader();
+    const gltfLoader2 = new GLTFLoader();
 
     const onLoad = gltf => {
       console.log(gltf);
-      logo = gltf.scene.children[0];
-      this.scene.add(logo);
+      frame = gltf.scene.children[0];
+      this.scene.add(frame);
+    };
+    const onLoad2 = gltf => {
+      console.log(gltf);
+      type = gltf.scene.children[0];
+      this.scene.add(type);
     };
 
     const onProgress = () => {};
@@ -105,9 +112,17 @@ class App extends Component {
     };
 
     gltfLoader.load(
-      "/quads-trips.glb",
+      "/AppAge-stacked-Frame.glb",
       gltf => {
         onLoad(gltf);
+      },
+      onProgress,
+      onError
+    );
+    gltfLoader2.load(
+      "/AppAge-stacked-Type.glb",
+      gltf => {
+        onLoad2(gltf);
       },
       onProgress,
       onError
@@ -116,9 +131,14 @@ class App extends Component {
 
   animate = () => {
     requestAnimationFrame(this.animate);
-    if (logo) {
-      // logo.rotation.x += 0.01;
-      logo.rotation.y += 0.005;
+    if (frame) {
+      // frame.rotation.x += 0.01;
+      frame.rotation.y += 0.005;
+    }
+
+    if (type) {
+      // type.rotation.x += 0.01;
+      type.rotation.y += 0.005;
     }
 
     //   // console.log(renderer.info.render.calls); //add right above the render call
