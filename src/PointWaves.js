@@ -2,7 +2,6 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import * as THREE from "three";
-import Stats from 'stats-js';
 
 class PointWaves extends Component {
   componentDidMount() {

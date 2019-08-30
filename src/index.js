@@ -4,4 +4,4 @@ import App from "./app";
 import PointWaves from './PointWaves'
 
 const rootElement = document.getElementById("root");
-ReactDOM.render(<PointWaves />, rootElement);
+ReactDOM.render(<App />, rootElement);
