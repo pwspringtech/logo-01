@@ -19,7 +19,7 @@ class App extends Component {
     this.scene.background = new THREE.Color(0x000000); // black background
 
     // ** Fog - exponentially denser further away from camera
-    this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
+    // this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
 
 
     this.camera = new THREE.PerspectiveCamera(
@@ -60,7 +60,7 @@ class App extends Component {
     // *** add softbox ***
     RectAreaLightUniformsLib.init();
 		this.rectLight1 = new THREE.RectAreaLight( 0x0030ff, 3, 10, 10 );
-		this.rectLight1.position.set( 0, 7, -10 );
+		this.rectLight1.position.set( 0, -1, -10 );
     this.rectLight1.lookAt( 0, 0, 0 );
 
     // ***  turn on helper to make light visible ***
@@ -71,25 +71,25 @@ class App extends Component {
 
 
     //Green
-    const pointLight = new THREE.PointLight(0x1bc236, 1);
+    const pointLight = new THREE.PointLight(0x1bc236, 0.3);
     pointLight.position.x = 8;
     pointLight.position.z = 3;
     this.scene.add(pointLight);
 
     //Red
-    const pointLight2 = new THREE.PointLight(0xfb3f3f, 1);
+    const pointLight2 = new THREE.PointLight(0xfb3f3f, 0.3);
     pointLight2.position.x = -8;
     pointLight2.position.z = 3;
     this.scene.add(pointLight2);
 
     //Blue
-    const pointLight3 = new THREE.PointLight(0x0000ff, 1);
+    const pointLight3 = new THREE.PointLight(0x0000ff, 0.3);
     pointLight3.position.y = 8;
     pointLight3.position.z = 3;
     this.scene.add(pointLight3);
 
     //Cyan
-    const pointLight4 = new THREE.PointLight(0x00f6ff, 1);
+    const pointLight4 = new THREE.PointLight(0x00f6ff, 0.3);
     pointLight4.position.y = -8;
     pointLight4.position.z = 3;
     this.scene.add(pointLight4);
@@ -111,7 +111,7 @@ class App extends Component {
   }
   const starsMaterial = new THREE.PointsMaterial( {size: 0.1} );
   const starField = new THREE.Points( starsGeometry, starsMaterial );
-  this.scene.add( starField );
+  // this.scene.add( starField );
 
     // GLTF Loader
 
@@ -134,7 +134,7 @@ class App extends Component {
       this.type = gltf.scene.children[0];
       this.type.traverse ( ( o ) => {
         if ( o.isMesh ) {
-            o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.3});
+            o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.1});
         }
           });
       this.scene.add(this.type);
@@ -147,7 +147,7 @@ class App extends Component {
     };
 
     gltfLoader.load(
-      "/AppAge-stacked-Frame.glb",
+      "/AppAge-stacked-05-solidDrilled.glb",
       gltf => {
         onLoad(gltf);
       },
