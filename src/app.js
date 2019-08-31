@@ -19,7 +19,7 @@ class App extends Component {
     this.scene.background = new THREE.Color(0x000000); // black background
 
     // ** Fog - exponentially denser further away from camera
-    this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
+    // this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
 
 
     this.camera = new THREE.PerspectiveCamera(
@@ -47,52 +47,73 @@ class App extends Component {
 
   lighting = () => {
 
-    // Directional Light
-    // const light = new THREE.DirectionalLight(0xffffff, 3.0);
-    // light.position.set(5, 5, 5);
-    // this.scene.add(light);
-
-    // Ambient Light
-    // const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    // this.scene.add(ambientLight);
-
-
     // *** add softbox ***
     RectAreaLightUniformsLib.init();
 		this.rectLight1 = new THREE.RectAreaLight( 0x0030ff, 3, 10, 10 );
-		this.rectLight1.position.set( 0, 7, -10 );
+		this.rectLight1.position.set( 0, -1, -10 );
     this.rectLight1.lookAt( 0, 0, 0 );
 
-    // ***  turn on helper to make light visible ***
-    // const helper = new THREE.RectAreaLightHelper( this.rectLight1 );
+   
+    const helper = new THREE.RectAreaLightHelper( this.rectLight1 );
     // this.rectLight1.add( helper ); 
-
 		this.scene.add( this.rectLight1 );
 
+    // Blue
+    this.rectLight2 = new THREE.RectAreaLight( 0x0030ff, 3, 10, 10);
+    this.rectLight2.position.x = -8;
+    this.rectLight2.position.z = 3;
+    this.rectLight2.add( helper2 ); 
+    const helper2 = new THREE.RectAreaLightHelper( this.rectLight2 );
+    this.scene.add(this.rectLight2);
 
-    //Green
-    const pointLight = new THREE.PointLight(0x1bc236, 1);
-    pointLight.position.x = 8;
-    pointLight.position.z = 3;
-    this.scene.add(pointLight);
+    // Red
+    this.rectLight3 = new THREE.RectAreaLight(0xfb3f3f, 3, 10, 10);
+    this.rectLight3.position.x = 8;
+    this.rectLight3.position.z = 3;
+    this.rectLight3.add( helper3 );
+    const helper3 = new THREE.RectAreaLightHelper( this.rectLight3 );
+    this.scene.add(this.rectLight3);
 
-    //Red
-    const pointLight2 = new THREE.PointLight(0xfb3f3f, 1);
-    pointLight2.position.x = -8;
-    pointLight2.position.z = 3;
-    this.scene.add(pointLight2);
+    // Green
+    this.rectLight4 = new THREE.RectAreaLight(0x18ff00, 3, 10, 10);
+    this.rectLight4.position.x = 16;
+    this.rectLight4.position.z = 3;
 
-    //Blue
-    const pointLight3 = new THREE.PointLight(0x0000ff, 1);
-    pointLight3.position.y = 8;
-    pointLight3.position.z = 3;
-    this.scene.add(pointLight3);
+    this.rectLight4.add( helper4 );
+    const helper4 = new THREE.RectAreaLightHelper( this.rectLight4 );
+    this.scene.add(this.rectLight4);
 
-    //Cyan
-    const pointLight4 = new THREE.PointLight(0x00f6ff, 1);
-    pointLight4.position.y = -8;
-    pointLight4.position.z = 3;
-    this.scene.add(pointLight4);
+    // //Cyan
+    // const pointLight4 = new THREE.RectAreaLight(0x00f6ff, 0.3);
+    // pointLight4.position.y = -8;
+    // pointLight4.position.z = 3;
+    // this.scene.add(pointLight4);
+
+
+
+    // //Green
+    // const pointLight = new THREE.PointLight(0x1bc236, 0.3);
+    // pointLight.position.x = 8;
+    // pointLight.position.z = 3;
+    // this.scene.add(pointLight);
+
+    // //Red
+    // const pointLight2 = new THREE.PointLight(0xfb3f3f, 0.3);
+    // pointLight2.position.x = -8;
+    // pointLight2.position.z = 3;
+    // this.scene.add(pointLight2);
+
+    // //Blue
+    // const pointLight3 = new THREE.PointLight(0x0000ff, 0.3);
+    // pointLight3.position.y = 8;
+    // pointLight3.position.z = 3;
+    // this.scene.add(pointLight3);
+
+    // //Cyan
+    // const pointLight4 = new THREE.PointLight(0x00f6ff, 0.3);
+    // pointLight4.position.y = -8;
+    // pointLight4.position.z = 3;
+    // this.scene.add(pointLight4);
   };
 
   addObjects = () => {
@@ -111,7 +132,7 @@ class App extends Component {
   }
   const starsMaterial = new THREE.PointsMaterial( {size: 0.1} );
   const starField = new THREE.Points( starsGeometry, starsMaterial );
-  this.scene.add( starField );
+  // this.scene.add( starField );
 
     // GLTF Loader
 
@@ -134,7 +155,7 @@ class App extends Component {
       this.type = gltf.scene.children[0];
       this.type.traverse ( ( o ) => {
         if ( o.isMesh ) {
-            o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.3});
+            o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.1});
         }
           });
       this.scene.add(this.type);
@@ -147,7 +168,7 @@ class App extends Component {
     };
 
     gltfLoader.load(
-      "/AppAge-stacked-Frame.glb",
+      "/AppAge-stacked-07-solidDrilled.glb",
       gltf => {
         onLoad(gltf);
       },
