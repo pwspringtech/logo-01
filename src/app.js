@@ -6,6 +6,7 @@ import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLigh
 
 
 class App extends Component {
+
   componentDidMount() {
     this.sceneSetup();
     this.lighting();
@@ -21,7 +22,7 @@ class App extends Component {
     // ** Fog - exponentially denser further away from camera
     // this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
 
-
+    
     this.camera = new THREE.PerspectiveCamera(
       35,
       window.innerWidth / window.innerHeight,
@@ -33,6 +34,10 @@ class App extends Component {
     this.controls = new OrbitControls(this.camera, this.el);
     this.controls.enableZoom = true;
 
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+    console.log(this.mouse)
+
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       gammaOutput: true,
@@ -42,6 +47,7 @@ class App extends Component {
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.mount.appendChild(this.renderer.domElement);
+    document.addEventListener( 'mousemove', this.handeDocumentMouseMove, false );
     window.addEventListener("resize", this.handleWindowResize);
   };
 
@@ -193,8 +199,26 @@ class App extends Component {
       this.type.rotation.y += 0.005;
     }
 
+    this.camera.lookAt( this.scene.position );
+    this.raycaster.setFromCamera( this.mouse, this.camera );
+    let intersects = this.raycaster.intersectObjects( this.scene.children );
 
-     // console.log(renderer.info.render.calls); 
+    let INTERSECTED;
+    if ( intersects.length > 0 ) {
+      console.log('Greater than 1')
+      if ( INTERSECTED != intersects[ 0 ].object ) {
+        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+          INTERSECTED = intersects[ 0 ].object;
+          INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+          INTERSECTED.material.emissive.setHex( 0xff0000 );
+          console.log('Object intersected')
+      }
+    } else {
+      if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+        INTERSECTED = null;
+    }
+  
+     // console.log(renderer.info.render.calls);
     this.renderer.render(this.scene, this.camera);
   };
 
@@ -204,6 +228,12 @@ class App extends Component {
     this.camera.updateProjectionMatrix();
   };
 
+  handeDocumentMouseMove = (event) => {
+    event.preventDefault();
+    console.log(this.mouse)
+    this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  }
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleWindowResize);
     window.cancelAnimationFrame(this.requestID);
