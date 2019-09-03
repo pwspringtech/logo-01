@@ -12,6 +12,7 @@ class IntCubes extends Component {
         this.theta = 0;
         this.sceneSetup();
         this.animate();
+
     }
 
     sceneSetup = () => {
@@ -22,6 +23,7 @@ class IntCubes extends Component {
         const light = new THREE.DirectionalLight( 0xffffff, 1 );
         light.position.set( 1, 1, 1 ).normalize();
         this.scene.add( light );
+        this.loadModels();
         const geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
         for ( var i = 0; i < 2000; i ++ ) {
             let object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
@@ -45,6 +47,57 @@ class IntCubes extends Component {
         document.addEventListener( 'mousemove', this.onDocumentMouseMove, false );
         //
         window.addEventListener( 'resize', this.onWindowResize, false );
+    }
+
+    loadModels = () => {
+        // GLTF Loader
+        const gltfLoader = new GLTFLoader();
+        const gltfLoader2 = new GLTFLoader();
+
+        const onLoad = gltf => {
+        console.log(gltf);
+        this.frame = gltf.scene.children[0];
+        this.frame.traverse ( ( o ) => {
+            if ( o.isMesh ) {
+                o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.3});
+            }
+        });
+        this.scene.add(this.frame);
+        };
+
+        const onLoad2 = gltf => {
+            console.log(gltf);
+            this.type = gltf.scene.children[0];
+            this.type.traverse ( ( o ) => {
+                if ( o.isMesh ) {
+                    o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.1});
+                }
+                });
+                this.scene.add(this.type);
+            };
+
+        const onProgress = () => {};
+
+        const onError = errorMessage => {
+        console.log(errorMessage);
+        };
+
+        gltfLoader.load(
+            "/AppAge-stacked-07-solidDrilled.glb",
+            gltf => {
+                onLoad(gltf);
+            },
+            onProgress,
+            onError
+        );
+        gltfLoader2.load(
+            "/AppAge-stacked-Type.glb",
+            gltf => {
+                onLoad2(gltf);
+            },
+            onProgress,
+            onError
+        );
     }
 
     onWindowResize = () => {
@@ -78,6 +131,7 @@ class IntCubes extends Component {
                 this.INTERSECTED = intersects[ 0 ].object;
                 this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
                 this.INTERSECTED.material.emissive.setHex( 0xff0000 );
+                console.log(this.INTERSECTED)
             }
         } else {
             if ( this.INTERSECTED ) this.INTERSECTED.material.emissive.setHex( this.INTERSECTED.currentHex );
