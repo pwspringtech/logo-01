@@ -8,6 +8,7 @@ import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLigh
 class App extends Component {
 
   componentDidMount() {
+    this.INTERSECTED = undefined;
     this.sceneSetup();
     this.lighting();
     this.addObjects();
@@ -15,6 +16,7 @@ class App extends Component {
   }
 
   sceneSetup = () => {
+    this.mouse = new THREE.Vector2();
     this.scene = new THREE.Scene();
     // this.scene.background = new THREE.Color(0xffffff); // white background
     this.scene.background = new THREE.Color(0x000000); // black background
@@ -35,8 +37,6 @@ class App extends Component {
     this.controls.enableZoom = true;
 
     this.raycaster = new THREE.Raycaster();
-    this.mouse = new THREE.Vector2();
-    console.log(this.mouse)
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -124,7 +124,19 @@ class App extends Component {
 
   addObjects = () => {
 
-    
+    // Box test
+    const geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
+    let object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+    object.position.x = Math.random() * 800 - 400;
+    object.position.y = Math.random() * 800 - 400;
+    object.position.z = Math.random() * 800 - 400;
+    object.rotation.x = Math.random() * 2 * Math.PI;
+    object.rotation.y = Math.random() * 2 * Math.PI;
+    object.rotation.z = Math.random() * 2 * Math.PI;
+    object.scale.x = Math.random() + 0.5;
+    object.scale.y = Math.random() + 0.5;
+    object.scale.z = Math.random() + 0.5;
+    this.scene.add( object );
 
     // ** Add Stars **
 
@@ -199,25 +211,21 @@ class App extends Component {
       this.type.rotation.y += 0.005;
     }
 
-    this.camera.lookAt( this.scene.position );
     this.raycaster.setFromCamera( this.mouse, this.camera );
-    let intersects = this.raycaster.intersectObjects( this.scene.children );
+    var intersects = this.raycaster.intersectObjects( this.scene.children );
 
-    let INTERSECTED;
     if ( intersects.length > 0 ) {
-      console.log('Greater than 1')
-      if ( INTERSECTED != intersects[ 0 ].object ) {
-        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-          INTERSECTED = intersects[ 0 ].object;
-          INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-          INTERSECTED.material.emissive.setHex( 0xff0000 );
-          console.log('Object intersected')
+      if ( this.INTERSECTED != intersects[ 0 ].object ) {
+        if ( this.INTERSECTED ) this.INTERSECTED.material.emissive.setHex( this.INTERSECTED.currentHex );
+        this.INTERSECTED = intersects[ 0 ].object;
+        this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
+        this.INTERSECTED.material.emissive.setHex( 0xff0000 );
+        console.log(this.INTERSECTED)
       }
     } else {
-      if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-        INTERSECTED = null;
+      if ( this.INTERSECTED ) this.INTERSECTED.material.emissive.setHex( this.INTERSECTED.currentHex );
+        this.INTERSECTED = null;
     }
-  
      // console.log(renderer.info.render.calls);
     this.renderer.render(this.scene, this.camera);
   };
@@ -230,7 +238,6 @@ class App extends Component {
 
   handeDocumentMouseMove = (event) => {
     event.preventDefault();
-    console.log(this.mouse)
     this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 		this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
   }
