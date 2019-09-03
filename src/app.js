@@ -3,22 +3,23 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+import { HDRCubeTextureLoader } from "three/examples/jsm/loaders/HDRCubeTextureLoader.js";
+import { PMREMGenerator } from "three/examples/jsm/pmrem/PMREMGenerator.js";
+import { PMREMCubeUVPacker } from "three/examples/jsm/pmrem/PMREMCubeUVPacker.js";
 
 class App extends Component {
   componentDidMount() {
     this.sceneSetup();
-    this.lighting();
+    // this.lighting();
     this.addObjects();
     this.animate();
+    // this.addLightMap();
   }
 
   sceneSetup = () => {
     this.scene = new THREE.Scene();
     // this.scene.background = new THREE.Color(0xffffff); // white background
     this.scene.background = new THREE.Color(0x000000); // black background
-
-    // ** Fog - exponentially denser further away from camera
-    // this.scene.fog = new THREE.FogExp2( 0x000104, 0.01 );
 
     this.camera = new THREE.PerspectiveCamera(
       35,
@@ -44,14 +45,11 @@ class App extends Component {
   };
 
   lighting = () => {
-    // *** add softbox ***
-
     // Blue back
     RectAreaLightUniformsLib.init();
     this.rectLight1 = new THREE.RectAreaLight(0x0030ff, 1, 5, 50);
     this.rectLight1.position.set(0, 0, -10);
     this.rectLight1.lookAt(0, 0, 0);
-
     this.scene.add(this.rectLight1);
 
     // Blue 2
@@ -73,7 +71,6 @@ class App extends Component {
     this.rectLight4.position.x = -8;
     this.rectLight4.position.z = -6;
     this.rectLight4.lookAt(0, 0, 0);
-
     this.scene.add(this.rectLight4);
 
     //Green 2
@@ -103,23 +100,59 @@ class App extends Component {
     // this.rectLight5.add(helper5);
   };
 
-  addObjects = () => {
-    // ** Add Stars **
+  // addLightMap = () => {
+  //   const r = "https://threejs.org/examples/textures/cube/Bridge2/";
 
-    // const starsGeometry = new THREE.Geometry();
-    // for (let i = 0; i < 100000; i++) {
-    //   let star = new THREE.Vector3();
-    //   star.x = THREE.Math.randFloatSpread(500);
-    //   star.y = THREE.Math.randFloatSpread(500);
-    //   star.z = THREE.Math.randFloatSpread(500);
-    //   starsGeometry.vertices.push(star);
-    // }
-    // const starsMaterial = new THREE.PointsMaterial({ size: 0.1 });
-    // const starField = new THREE.Points(starsGeometry, starsMaterial);
-    // this.scene.add( starField );
+  //   const urls = [
+  //     r + "posx.jpg",
+  //     r + "negx.jpg",
+  //     r + "posy.jpg",
+  //     r + "negy.jpg",
+  //     r + "posz.jpg",
+  //     r + "negz.jpg"
+  //   ];
+
+  //   const textureCube = new THREE.CubeTextureLoader().load(urls);
+  //   textureCube.format = THREE.RGBFormat;
+
+  //   const geometry = new THREE.SphereBufferGeometry(50, 24, 24);
+  //   const material = new THREE.MeshStandardMaterial({
+  //     side: DoubleSide,
+  //     envMap: textureCube
+  //   });
+  //   const mesh = new THREE.Mesh(geometry, material);
+  //   this.scene.add(mesh);
+  // };
+
+  addObjects = () => {
+    const hdrUrls = [
+      "px.hdr",
+      "nx.hdr",
+      "py.hdr",
+      "ny.hdr",
+      "pz.hdr",
+      "nz.hdr"
+    ];
+    const hdrCubeMap = new HDRCubeTextureLoader()
+      .setPath("/Factory_Catwalk_2k.hdr")
+      .setDataType(THREE.UnsignedByteType)
+      .load(hdrUrls, function() {
+        const pmremGenerator = new PMREMGenerator(hdrCubeMap);
+        pmremGenerator.update(this.renderer);
+
+        const pmremCubeUVPacker = new PMREMCubeUVPacker(
+          pmremGenerator.cubeLods
+        );
+        pmremCubeUVPacker.update(this.renderer);
+
+        const hdrCubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
+        hdrCubeMap.magFilter = THREE.LinearFilter;
+        hdrCubeMap.needsUpdate = true;
+        pmremGenerator.dispose();
+        pmremCubeUVPacker.dispose();
+      });
 
     // GLTF Loader
-
     const gltfLoader = new GLTFLoader();
     const gltfLoader2 = new GLTFLoader();
 
@@ -129,9 +162,12 @@ class App extends Component {
       this.frame.traverse(o => {
         if (o.isMesh) {
           o.material = new THREE.MeshStandardMaterial({
-            color: 0xfddf73,
-            metalness: 0.7,
-            roughness: 0.3
+            envMap: hdrCubeMap,
+            // envMapIntensity: 5,
+            // color: 0xfddf73,
+            color: 0xffffff,
+            metalness: 0.5,
+            roughness: 0.2
           });
         }
       });
@@ -144,9 +180,11 @@ class App extends Component {
       this.type.traverse(o => {
         if (o.isMesh) {
           o.material = new THREE.MeshStandardMaterial({
+            envMap: hdrCubeMap,
             color: 0xfddf73,
-            metalness: 0.7,
-            roughness: 0.1
+            // color: 0xffffff,
+            metalness: 0.5,
+            roughness: 0
           });
         }
       });
@@ -181,8 +219,8 @@ class App extends Component {
   animate = () => {
     requestAnimationFrame(this.animate);
     if (this.frame && this.type) {
-      this.frame.rotation.y += 0.005;
-      this.type.rotation.y += 0.005;
+      // this.frame.rotation.y += 0.005;
+      // this.type.rotation.y += 0.005;
     }
 
     // console.log(renderer.info.render.calls);
