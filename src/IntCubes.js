@@ -15,17 +15,22 @@ class IntCubes extends Component {
 
     }
 
+    // eslint-disable-next-line max-statements
     sceneSetup = () => {
         this.mouse = new THREE.Vector2();
-        this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+         // Load Camera Perspektive
+        this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 20000 );
+        this.camera.position.set( 1, 1, 20 );
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color( 0xf0f0f0 );
         const light = new THREE.DirectionalLight( 0xffffff, 1 );
         light.position.set( 1, 1, 1 ).normalize();
         this.scene.add( light );
-        this.loadModels();
+        this.controls = new OrbitControls(this.camera, this.el);
+        this.controls.enableZoom = true;
+        this.loadGLTF();
         const geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
-        for ( var i = 0; i < 2000; i ++ ) {
+        for ( var i = 0; i < 100; i ++ ) {
             let object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
             object.position.x = Math.random() * 800 - 400;
             object.position.y = Math.random() * 800 - 400;
@@ -49,51 +54,28 @@ class IntCubes extends Component {
         window.addEventListener( 'resize', this.onWindowResize, false );
     }
 
-    loadModels = () => {
+    loadGLTF = () => {
+
         // GLTF Loader
         const gltfLoader = new GLTFLoader();
-        const gltfLoader2 = new GLTFLoader();
 
         const onLoad = gltf => {
-        console.log(gltf);
-        this.frame = gltf.scene.children[0];
-        this.frame.traverse ( ( o ) => {
-            if ( o.isMesh ) {
-                o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.3});
-            }
-        });
-        this.scene.add(this.frame);
+            gltf.position.x = 0;
+            gltf.position.y = 0;
+            gltf.position.z = -200;
+            this.scene.add(gltf)
         };
-
-        const onLoad2 = gltf => {
-            console.log(gltf);
-            this.type = gltf.scene.children[0];
-            this.type.traverse ( ( o ) => {
-                if ( o.isMesh ) {
-                    o.material = new THREE.MeshStandardMaterial({color: 0xfddf73, metalness: 0.7, roughness: 0.1});
-                }
-                });
-                this.scene.add(this.type);
-            };
 
         const onProgress = () => {};
 
         const onError = errorMessage => {
-        console.log(errorMessage);
+            console.log(errorMessage);
         };
 
         gltfLoader.load(
-            "/AppAge-stacked-07-solidDrilled.glb",
+            "https://threejs.org/examples/models/gltf/Flamingo.glb",
             gltf => {
-                onLoad(gltf);
-            },
-            onProgress,
-            onError
-        );
-        gltfLoader2.load(
-            "/AppAge-stacked-Type.glb",
-            gltf => {
-                onLoad2(gltf);
+                onLoad(gltf.scene);
             },
             onProgress,
             onError
@@ -113,7 +95,7 @@ class IntCubes extends Component {
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleWindowResize);
         window.cancelAnimationFrame(this.requestID);
-        this.controls.dispose();
+        // this.controls.dispose();
     }
     animate = () => {
         requestAnimationFrame(this.animate);
@@ -124,7 +106,7 @@ class IntCubes extends Component {
         //this.camera.lookAt( this.scene.position );
         //this.camera.updateMatrixWorld();
         this.raycaster.setFromCamera( this.mouse, this.camera );
-        let intersects = this.raycaster.intersectObjects( this.scene.children );
+        let intersects = this.raycaster.intersectObjects( this.scene.children, true );
         if ( intersects.length > 0 ) {
             if ( this.INTERSECTED != intersects[ 0 ].object ) {
                 if ( this.INTERSECTED ) this.INTERSECTED.material.emissive.setHex( this.INTERSECTED.currentHex );
