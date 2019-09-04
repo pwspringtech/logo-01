@@ -189,7 +189,7 @@ class App extends Component {
     };
 
     gltfLoader.load(
-      "/AppAge-stacked-07-solidDrilled.glb",
+      "/models/AppAge-Icon.glb",
       gltf => {
         onLoad(gltf);
       },
@@ -197,7 +197,7 @@ class App extends Component {
       onError
     );
     gltfLoader2.load(
-      "/AppAge-stacked-Type.glb",
+      "/models/AppAge-Type.glb",
       gltf => {
         onLoad2(gltf);
       },
