@@ -3,9 +3,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
-import { HDRCubeTextureLoader } from "three/examples/jsm/loaders/HDRCubeTextureLoader.js";
-import { PMREMGenerator } from "three/examples/jsm/pmrem/PMREMGenerator.js";
-import { PMREMCubeUVPacker } from "three/examples/jsm/pmrem/PMREMCubeUVPacker.js";
 
 class App extends Component {
   componentDidMount() {
@@ -13,7 +10,6 @@ class App extends Component {
     // this.lighting();
     this.addObjects();
     this.animate();
-    // this.addLightMap();
   }
 
   sceneSetup = () => {
@@ -86,72 +82,6 @@ class App extends Component {
     this.rectLight6.lookAt(0, 0, 0);
     this.scene.add(this.rectLight6);
 
-    // const helper6 = new THREE.RectAreaLightHelper(this.rectLight6);
-    // this.rectLight6.add(helper6);
-    // const helper = new THREE.RectAreaLightHelper(this.rectLight1);
-    // this.rectLight1.add(helper);
-    // const helper2 = new THREE.RectAreaLightHelper(this.rectLight2);
-    // this.rectLight2.add(helper2);
-    // const helper3 = new THREE.RectAreaLightHelper(this.rectLight3);
-    // this.rectLight3.add(helper3);
-    // const helper4 = new THREE.RectAreaLightHelper(this.rectLight4);
-    // this.rectLight4.add(helper4);
-    // const helper5 = new THREE.RectAreaLightHelper(this.rectLight5);
-    // this.rectLight5.add(helper5);
-  };
-
-  // addLightMap = () => {
-  //   const r = "https://threejs.org/examples/textures/cube/Bridge2/";
-
-  //   const urls = [
-  //     r + "posx.jpg",
-  //     r + "negx.jpg",
-  //     r + "posy.jpg",
-  //     r + "negy.jpg",
-  //     r + "posz.jpg",
-  //     r + "negz.jpg"
-  //   ];
-
-  //   const textureCube = new THREE.CubeTextureLoader().load(urls);
-  //   textureCube.format = THREE.RGBFormat;
-
-  //   const geometry = new THREE.SphereBufferGeometry(50, 24, 24);
-  //   const material = new THREE.MeshStandardMaterial({
-  //     side: DoubleSide,
-  //     envMap: textureCube
-  //   });
-  //   const mesh = new THREE.Mesh(geometry, material);
-  //   this.scene.add(mesh);
-  // };
-
-  addObjects = () => {
-    const hdrUrls = [
-      "px.hdr",
-      "nx.hdr",
-      "py.hdr",
-      "ny.hdr",
-      "pz.hdr",
-      "nz.hdr"
-    ];
-    const hdrCubeMap = new HDRCubeTextureLoader()
-      .setPath("/Factory_Catwalk_2k.hdr")
-      .setDataType(THREE.UnsignedByteType)
-      .load(hdrUrls, function() {
-        const pmremGenerator = new PMREMGenerator(hdrCubeMap);
-        pmremGenerator.update(this.renderer);
-
-        const pmremCubeUVPacker = new PMREMCubeUVPacker(
-          pmremGenerator.cubeLods
-        );
-        pmremCubeUVPacker.update(this.renderer);
-
-        const hdrCubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
-        hdrCubeMap.magFilter = THREE.LinearFilter;
-        hdrCubeMap.needsUpdate = true;
-        pmremGenerator.dispose();
-        pmremCubeUVPacker.dispose();
-      });
-
     // GLTF Loader
     const gltfLoader = new GLTFLoader();
     const gltfLoader2 = new GLTFLoader();
@@ -162,7 +92,6 @@ class App extends Component {
       this.frame.traverse(o => {
         if (o.isMesh) {
           o.material = new THREE.MeshStandardMaterial({
-            envMap: hdrCubeMap,
             // envMapIntensity: 5,
             // color: 0xfddf73,
             color: 0xffffff,
@@ -180,7 +109,6 @@ class App extends Component {
       this.type.traverse(o => {
         if (o.isMesh) {
           o.material = new THREE.MeshStandardMaterial({
-            envMap: hdrCubeMap,
             color: 0xfddf73,
             // color: 0xffffff,
             metalness: 0.5,
